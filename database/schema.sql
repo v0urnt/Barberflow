@@ -1,6 +1,6 @@
 CREATE DATABASE Barberflow;
 
-CREATE TABLE barberia(
+CREATE TABLE barberias(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     telefono VARCHAR(20) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE permisos(
     activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE estados_cita(
+CREATE TABLE estado_citas(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion TEXT,
@@ -47,20 +47,19 @@ CREATE TABLE estados_pago(
     activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE usuarios(
+CREATE TABLE users(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     barberia_id BIGINT NOT NULL,
     rol_id BIGINT NOT NULL,
-    nombre_usuario VARCHAR(40) NOT NULL,
-    apellido_usuario VARCHAR(50) NOT NULL,
+    name VARCHAR(40) NOT NULL,
+    apellido VARCHAR(50) NOT NULL,
     email VARCHAR(255) NOT NULL,
-    password_hash TEXT NOT NULL,
     telefono VARCHAR(20),
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_usuarios_barberia_email UNIQUE(barberia_id, email),
-    CONSTRAINT fk_usuarios_barberia_id FOREIGN KEY (barberia_id) references barberia(id),
+    CONSTRAINT fk_usuarios_barberia_id FOREIGN KEY (barberia_id) references barberias(id),
     CONSTRAINT fk_usuarios_rol_id FOREIGN KEY (rol_id) references roles(id)
 );
 
@@ -77,7 +76,7 @@ CREATE TABLE clientes(
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMPTZ NULL,
-    CONSTRAINT fk_clientes_barberia_id FOREIGN KEY (barberia_id) references barberia(id)
+    CONSTRAINT fk_clientes_barberia_id FOREIGN KEY (barberia_id) references barberias(id)
 );
 
 CREATE TABLE categorias_servicio(
@@ -86,25 +85,26 @@ CREATE TABLE categorias_servicio(
     nombre VARCHAR(60) NOT NULL,
     descripcion TEXT,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
-    CONSTRAINT fk_categorias_barberia_id FOREIGN KEY (barberia_id) references barberia(id)
+    CONSTRAINT uq_categorias_servicio_barberia_id_nombre UNIQUE(barberia_id, nombre),
+    CONSTRAINT fk_categorias_barberia_id FOREIGN KEY (barberia_id) references barberias(id)
 );
 
 CREATE TABLE barberos(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    usuario_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
     especialidad VARCHAR(50),
     biografia TEXT,
     activo BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uq_barberos_usuario_id UNIQUE(usuario_id),
-    CONSTRAINT fk_barberos_usuario_id FOREIGN KEY (usuario_id) references usuarios(id)
+    CONSTRAINT uq_barberos_user_id UNIQUE(user_id),
+    CONSTRAINT fk_barberos_user_id FOREIGN KEY (user_id) references users(id)
 );
 
 CREATE TABLE servicios(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     barberia_id BIGINT NOT NULL,
-    categorias_servicio_id BIGINT NOT NULL,
+    categoria_servicio_id BIGINT NOT NULL,
     nombre_servicio VARCHAR(50) NOT NULL,
     descripcion TEXT,
     precio NUMERIC(12,2) NOT NULL,
@@ -115,8 +115,8 @@ CREATE TABLE servicios(
     CONSTRAINT uq_servicio_barberia_nombre_servicio UNIQUE(barberia_id, nombre_servicio),
     CONSTRAINT chk_servicio_precio CHECK(precio > 0),
     CONSTRAINT chk_servicio_duracion_minutos CHECK(duracion_minutos > 0 AND duracion_minutos % 5 = 0),
-    CONSTRAINT fk_servicio_barberia_id FOREIGN KEY (barberia_id) references barberia(id),
-    CONSTRAINT fk_servicio_categoria_servicio_id FOREIGN KEY (categorias_servicio_id) references categorias_servicio(id)
+    CONSTRAINT fk_servicio_barberia_id FOREIGN KEY (barberia_id) references barberias(id),
+    CONSTRAINT fk_servicio_categoria_servicio_id FOREIGN KEY (categoria_servicio_id) references categorias_servicio(id)
 );
 
 CREATE TABLE rol_permiso(
@@ -178,10 +178,10 @@ CREATE TABLE citas(
     observaciones TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_citas_barberia_id FOREIGN KEY(barberia_id) references barberia(id),
+    CONSTRAINT fk_citas_barberia_id FOREIGN KEY(barberia_id) references barberias(id),
     CONSTRAINT fk_citas_cliente_id FOREIGN KEY(cliente_id) references clientes(id),
     CONSTRAINT fk_citas_barbero_id FOREIGN KEY(barbero_id) references barberos(id),
-    CONSTRAINT fk_citas_estado_cita FOREIGN KEY(estado_cita_id) references estados_cita(id),
+    CONSTRAINT fk_citas_estado_cita FOREIGN KEY(estado_cita_id) references estado_citas(id),
     CONSTRAINT chk_citas_hora_inicio_hora_fin CHECK(hora_fin > hora_inicio)
 );
 
@@ -215,4 +215,17 @@ CREATE TABLE pagos(
     CONSTRAINT fk_pagos_metodo_pago_id FOREIGN KEY(metodo_pago_id) references metodos_pago(id),
     CONSTRAINT fk_pagos_estado_pago_id FOREIGN KEY(estado_pago_id) references estados_pago(id),
     CONSTRAINT chk_pagos_monto CHECK(monto > 0)
+);
+
+CREATE TABLE cita_historial_estados(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    cita_id BIGINT NOT NULL,
+    estado_cita_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    observacion TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_cita_historial_cita_id FOREIGN KEY(cita_id) references citas(id),
+    CONSTRAINT fk_cita_historial_estado_cita_id FOREIGN KEY(estado_cita_id) references estado_citas(id),
+    CONSTRAINT fk_cita_historial_user_id FOREIGN(user_id) references users(id)
+
 );
