@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('cita_id')->constrained('citas')->cascadeOnDelete();
             $table->foreignId('servicio_id')->constrained('servicios')->cascadeOnDelete();
-            $table->unique(['cita_id, servicio_id']);
+            $table->unique(['cita_id', 'servicio_id']);
             $table->decimal('precio', 12, 2);
             $table->smallInteger('duracion_minutos');
             $table->decimal('subtotal', 12, 2);
@@ -26,7 +26,21 @@ return new class extends Migration
 
     DB::statement('
             ALTER TABLE cita_servicio
-            ADD CONSTRAINT chk_cita_servicio_precio')
+            ADD CONSTRAINT chk_cita_servicio_precio
+            CHECK (precio > 0)
+        ');
+
+    DB::statement('
+            ALTER TABLE cita_servicio
+            ADD CONSTRAINT chk_cita_servicio_duracion_minutos
+            CHECK (duracion_minutos > 0)
+        ');
+
+    DB::statement('
+            ALTER TABLE cita_servicio
+            ADD CONSTRAINT chk_cita_servicio_subtotal
+            CHECK (subtotal >= 0)
+        ');
 
     }
 

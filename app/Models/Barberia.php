@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Barberia extends Model
 {
-    /** @use HasFactory<\Database\Factories\BarberiaFactory> */
-    use HasFactory;
+    public $timestamp = true;
 
     protected $fillable = [
         'nombre',
@@ -19,11 +17,10 @@ class Barberia extends Model
         'activo'
     ];
 
-    protected function casts(): array
+    public function casts(): array
     {
-        return[
-            'activo' => 'boolean',
+        return [
+            'activo' => 'boolean'
         ];
     }
-
 }
