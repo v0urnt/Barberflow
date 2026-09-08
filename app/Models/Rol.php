@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use SebastianBergmann\Type\FalseType;
 
 class Rol extends Model
 {
