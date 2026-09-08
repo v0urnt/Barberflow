@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('barberia_id')->constrained('barberias');
             $table->foreignId('rol_id')->constrained('roles');
+            $table->unique(['barberia_id', 'email']);
         });
     }
 
@@ -25,8 +26,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['barberia_id']);
             $table->dropForeign(['rol_id']);
-            $table->dropColumn(['barberia_id','rol_id']);
+            $table->dropColumn(['barberia_id', 'rol_id']);
         });
     }
-
 };

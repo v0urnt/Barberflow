@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('pagos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('cita_id')->constrained('citas')->cascadeOnDelete();
-            $table->foreignId('metodo_pago_id')->constrained('metodo_pagos')->cascadeOnDelete();
+            $table->foreignId('metodo_pago_id')->constrained('metodos_pago')->cascadeOnDelete();
             $table->foreignId('estado_pago_id')->constrained('estados_pago')->cascadeOnDelete();
             $table->decimal('monto', 12, 2);
             $table->timestampTz('fecha_pago')->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-    DB::statement('
+        DB::statement('
             ALTER TABLE pagos
             ADD CONSTRAINT chk_pagos_monto
             CHECK(monto > 0)

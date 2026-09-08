@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('metodo_pagos', function (Blueprint $table) {
+        Schema::create('metodos_pago', function (Blueprint $table) {
             $table->id();
             $table->string('nombre_metodo', 50)->unique();
             $table->text('descripcion')->nullable();
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('metodo_pagos');
+        Schema::dropIfExists('metodos_pago');
     }
 };

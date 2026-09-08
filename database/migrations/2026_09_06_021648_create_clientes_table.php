@@ -16,11 +16,13 @@ return new class extends Migration
             $table->foreignId('barberia_id')->constrained('barberias')->cascadeOnDelete();
             $table->string('nombre_cliente', 40);
             $table->string('apellido_cliente', 50);
-            $table->string('telefono',20);
-            $table->string('email',255)->nullable();
+            $table->string('telefono', 20);
+            $table->string('email', 255)->nullable();
             $table->date('fecha_nacimiento')->nullable();
             $table->text('observaciones')->nullable();
+            $table->boolean('activo')->default(true);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
