@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Barberia;
+use App\Models\Rol;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -25,8 +27,16 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
+            'barberia_id' => Barberia::factory(),
+            'rol_id' => fn () => Rol::query()->firstOrCreate(
+                ['nombre_rol' => 'Administrador'],
+                ['descripcion' => 'Gestiona y administra todos los recursos de la barbería.', 'activo' => true],
+            ),
+            'name' => fake()->firstName(),
+            'apellido' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
+            'telefono' => fake()->numerify('3#########'),
+            'activo' => true,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),

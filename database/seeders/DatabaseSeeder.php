@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Barberia;
+use App\Models\Rol;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,14 +17,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            RolSeeder::class,
+            PermisoSeeder::class,
+            EstadoCitaSeeder::class,
+            MetodoPagoSeeder::class,
+            EstadoPagoSeeder::class,
+        ]);
 
-        $this->call(PermisoSeeder::class);
-        $this->call(MetodoPagoSeeder::class);
+        $barberia = Barberia::factory()->create([
+            'nombre' => 'Barberflow Demo',
+        ]);
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'barberia_id' => $barberia->id,
+            'rol_id' => Rol::query()->where('nombre_rol', 'Administrador')->value('id'),
+            'name' => 'Admin',
+            'apellido' => 'Demo',
+            'email' => 'admin@barberflow.test',
         ]);
     }
 }
